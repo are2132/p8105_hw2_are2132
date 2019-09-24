@@ -5,6 +5,15 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(readxl)
+```
+
+# Problem 1
+First we load in the Mr. Wheel Data
+```{r}
+wheel_data = read_csv(file = "./hw2 data/trash_wheel_datasets/mr_trash_wheel.csv")
+
 ```
 
