@@ -157,6 +157,15 @@ final_data538 = left_join(pols_month, snp_data) %>%
 ```
 
 ## Discussion
-Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+We imported and cleaned three datasets from the FiveThiryEight data, which was used to create a "p-hacking" simulation in the context of the question "which political party is better for the U.S. economy?"  
+  
+The first dataset was `pols_month`, which records the number of congressmen and women in office by party at various dates, as well as the party of the president. We cleaned the data so each date was divided into year and month, and created one single `president` column with values indicating either "gop" (Republican) or "dem" (Democrat). One interesting detail from the original dataset is that from August - December 1974, there were 2 GOP presidents recorded. Presumably this corresponds to the period in which Richard Nixon had resigned, turning over the presidency to his VP, Gerald Ford. This detail is not apparent, however, in our final dataset, which only indicates the party of the president, rather than a number.  
 
+The final dataset `pols_month` spans from `r pull(pols_month, month)[1]` `r pull(pols_month, year)[1]` to `r last(pull(pols_month, month))` `r last(pull(pols_month, year))`. It has `r nrow(pols_month)` rows and `r ncol(pols_month)` columns.  
+  
+The next dataset was `snp_data`, which records the closing value of the S&P stock market index on various dates (variable `close`). We cleaned this dataset to be consistent with the political data, including only year and month values. This dataset has `r nrow(snp_data)` rows and `r ncol(snp_data)` columns.
+
+The final dataset `unemploy_data` records the unemployment rate for each month in a year. We tidied this data so that each row corresponds to a month and year, and we called the variable of interest `unemploy_rate`. The final dataset has `r nrow(unemploy_data)` rows and `r ncol(unemploy_data)` columns.  
+  
+Lastly we combined all three datasets into one, which we called `final_data538`. Since it starts with `pols_month` it also has `r nrow(final_data538)` rows. It has `r ncol(final_data538)` columns, which corresponds to the 9 variables from `pols_month` plus the stock market value variable `close`, and the unemployment rate `unemploy_rate`. Note that `snp_data` only starts at `r pull(snp_data, month)[1]` `r pull(snp_data, year)[1]`, and `unemploy_data` only starts at `r pull(unemploy_data, month)[1]` `r pull(unemploy_data, year)[1]` so their values in the first few months of `final_data538` are marked "NA".
 
