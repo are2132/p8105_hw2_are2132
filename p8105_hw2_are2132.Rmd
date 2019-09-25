@@ -25,6 +25,8 @@ wheel_data =
   filter(dumpster != "NA") %>% #omit non-dumpster rows
   mutate(sports_balls = as.integer(sports_balls)) #round
 
+head(wheel_data) #display
+
 #read & clean precip data 2018
 precip_18 = 
   read_excel(
@@ -51,6 +53,9 @@ precip_17 =
 precip_17_18 = 
   bind_rows(precip_17, precip_18) %>% 
   mutate(month = month.name[month]) #spell out month names
+
+head(precip_17_18) #display
+
 ```
 
 ## Discussion
@@ -73,7 +78,6 @@ The median number of sports ball in a dumpster in 2017 was `r median(pull(filter
 # Problem 2
 First we read in and tidy the political counts data
 ```{r pols}
-
 pols_month = 
   read_csv(file = "./hw2 data/538_data/pols-month.csv") %>%
   janitor::clean_names() %>% 
@@ -98,6 +102,8 @@ pols_month =
  
   #delete 3 columns, including day
   select(-c(prez_dem, prez_gop, day))
+
+#head(pols_month) #display
   
 ```
 
@@ -123,6 +129,8 @@ snp_data =
   #order so cols = year then month
   select(year, everything())
 
+#head() NOT WORKING ON KNIT
+
 ```
 
 
@@ -147,6 +155,7 @@ unemploy_data =
   janitor::clean_names() 
   #mutate(year = as.integer(year))
 
+#head() NOT WORKING ON KNIT
 
 ```
 
@@ -154,6 +163,9 @@ Now let's combine the datasets into one
 ```{r}
 final_data538 = left_join(pols_month, snp_data) %>%
   left_join(unemploy_data)
+
+#head() NOT WORKING ON KNIT
+
 ```
 
 ## Discussion
@@ -204,7 +216,7 @@ baby_names =
 
 ## "Olivia" name popularity 
 ```{r}
-#separate baby_names data by year
+#separate baby_names data by year (4 new df's)
 baby_16 = filter(baby_names, year_of_birth == "2016")
 baby_15 = filter(baby_names, year_of_birth == "2015")
 baby_14 = filter(baby_names, year_of_birth == "2014")
@@ -220,7 +232,7 @@ rows13 = which(pull(baby_13,name) == "OLIVIA")
 rows12 = which(pull(baby_12,name) == "OLIVIA")
 rows11 = which(pull(baby_11,name) == "OLIVIA")
 
-#create mini tibble with row #, ethnicity, rank
+#create 1 column tibble with row #, ethnicity, rank
 tbl_16 = tibble("row" = rows16, 
          "ethnicity" = pull(baby_16,ethnicity)[rows16],
          "rank" = pull(baby_16,rank)[rows16]) 
@@ -257,7 +269,7 @@ olivia_df
 #isolate boys names from baby names
 boys_names = filter(baby_names, gender == "MALE")
 
-#separate boys_names data by year
+#separate boys_names data by year (4 new df's)
 boys_16 = filter(boys_names, year_of_birth == "2016")
 boys_15 = filter(boys_names, year_of_birth == "2015")
 boys_14 = filter(boys_names, year_of_birth == "2014")
@@ -273,7 +285,7 @@ b_rows13 = which(pull(boys_13, rank) == 1)
 b_rows12 = which(pull(boys_12, rank) == 1)
 b_rows11 = which(pull(boys_11, rank) == 1)
 
-#create mini tibble with row #, ethnicity, #1 name
+#create 1 columnn tibble with row #, ethnicity, #1 name
 b_tbl_16 = tibble("row" = b_rows16, 
          "ethnicity" = pull(boys_16, ethnicity)[b_rows16],
          "name" = pull(boys_16, name)[b_rows16]) 
@@ -294,7 +306,6 @@ b_tbl_11 = tibble("row" = b_rows11,
          "name" = pull(boys_11, name)[b_rows11]) 
 
 #combines names into one pretty tibble
-#combine ranks into one pretty table
 num1_boys = tibble("ethnicity" = pull(b_tbl_16, ethnicity),
                    "2011" = pull(b_tbl_11, name),
                    "2012" = pull(b_tbl_12, name),
@@ -304,5 +315,24 @@ num1_boys = tibble("ethnicity" = pull(b_tbl_16, ethnicity),
                    "2016" = pull(b_tbl_16, name))
 
 num1_boys
+```
+
+## Scatterplot
+```{r}
+#Separate out male, white boys' names for 2016
+male_white_boys = filter(baby_names, gender == "MALE",
+                         year_of_birth == "2016",
+                         ethnicity == "WHITE NON HISPANIC")
+
+#isolate columns for count & rank
+name_count = pull(male_white_boys, count)
+name_rank = pull(male_white_boys, rank)
+
+
+#combine into a new 2 column tibble
+mwb_df = tibble(name_rank, name_count)
+
+#plot it (I have reversed x-axis for intuitive reading)
+ggplot(mwb_df, aes(x = name_rank, y = name_count)) + geom_point() + scale_x_reverse()
 ```
 
