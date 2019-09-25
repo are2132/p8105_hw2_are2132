@@ -71,21 +71,27 @@ The median number of sports ball in a dumpster in 2017 was `r median(pull(filter
 
 
 # Problem 2
+First we read in and tidy the political counts data
 ```{r pols}
 
 pols_month = 
-  read_csv(file = "./hw2 data/538_data/pols-month.csv") %>% 
-  #break up date into 3 columns, spell out months
+  read_csv(file = "./hw2 data/538_data/pols-month.csv") %>%
+  janitor::clean_names() %>% 
+  
+  #break up date into 3 columns
   separate(col = mon, into = c("year","month","day"), 
            sep = "-", convert = TRUE) %>% 
+  
+  #spell out months
   mutate(month = month.name[month]) %>% 
   
+
   #create new column "president", initialize as gop col
   mutate(president = prez_gop) %>% 
   
   #replace gop = 0 values with "dem"
   mutate(president = 
-           replace(president, president == 0, "dem")) %>%
+           replace(president, president == 0, "dem")) %>% 
   #replace remaining (gop nonzero) values with "gop"
   mutate(president = 
            replace(president, president!="dem", "gop")) %>%
@@ -95,16 +101,51 @@ pols_month =
   
 ```
 
+Next we read in and tidy the stock market data
 ```{r snp}
 snp_data = 
   read_csv(file = "./hw2 data/538_data/snp.csv") %>% 
+  janitor::clean_names() %>% 
   
-  #break up date into 3 columns, spell out months
-  separate(col = date, into = c("year","month","day"), 
-           sep = "/", convert = TRUE)
+  #break up date into 3 columns
+  separate(col = date, into = c("month","day","year"), 
+           sep = "/", convert = TRUE) %>% 
   
+  #arrange by date
+  arrange(year, month) %>% 
+  
+  #spell out months
+  mutate(month = month.name[month]) %>%
+  
+  #get rid of day column
+  select(-day) %>% 
+  
+  #order so cols = year then month
+  select(year, everything())
+
 ```
 
 
+Finally we read in and tidy the unemployment data
+```{r}
+unemploy_data = 
+  read_csv(file = "./hw2 data/538_data/unemployment.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "unemploy_rate"
+  )
+
+```
+
+Now let's combine the datasets into one
+```{r}
+stepping_stone = left_join(pols_month, snp_data)
+final_data538 = left_join(stepping_stone, unemploy_data)
+```
+
+## Discussion
+Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
 
