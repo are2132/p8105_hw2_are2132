@@ -168,4 +168,141 @@ The next dataset was `snp_data`, which records the closing value of the S&P stoc
 The final dataset `unemploy_data` records the unemployment rate for each month in a year. We tidied this data so that each row corresponds to a month and year, and we called the variable of interest `unemploy_rate`. The final dataset has `r nrow(unemploy_data)` rows and `r ncol(unemploy_data)` columns.  
   
 Lastly we combined all three datasets into one, which we called `final_data538`. Since it starts with `pols_month` it also has `r nrow(final_data538)` rows. It has `r ncol(final_data538)` columns, which corresponds to the 9 variables from `pols_month` plus the stock market value variable `close`, and the unemployment rate `unemploy_rate`. Note that `snp_data` only starts at `r pull(snp_data, month)[1]` `r pull(snp_data, year)[1]`, and `unemploy_data` only starts at `r pull(unemploy_data, month)[1]` `r pull(unemploy_data, year)[1]` so their values in the first few months of `final_data538` are marked "NA".
+  
+# Problem 3
+First load & tidy baby name data
+```{r}
+baby_names = 
+  read_csv("./hw2 data/baby_names_data.csv") %>% 
+  janitor::clean_names() %>% 
+  
+  rename(name = childs_first_name) %>%
+  
+  #make ethnicity labels consistent throughout
+  mutate(
+    ethnicity = replace(ethnicity, 
+                        ethnicity == "ASIAN AND PACI",
+                        "ASIAN AND PACIFIC ISLANDER"),
+    ethnicity = replace(ethnicity, 
+                        ethnicity == "BLACK NON HISP",
+                        "BLACK NON HISPANIC"),
+    ethnicity = replace(ethnicity, 
+                        ethnicity == "WHITE NON HISP",
+                        "WHITE NON HISPANIC"),
+    ) %>%
+  #unique(pull(baby_names,ethnicity))
+
+  #convert all names to caps just for consistency
+  mutate(
+    name = str_to_upper(name)
+  ) %>%
+  
+  #remove duplicate rows 
+  distinct()
+
+```
+
+## "Olivia" name popularity 
+```{r}
+#separate baby_names data by year
+baby_16 = filter(baby_names, year_of_birth == "2016")
+baby_15 = filter(baby_names, year_of_birth == "2015")
+baby_14 = filter(baby_names, year_of_birth == "2014")
+baby_13 = filter(baby_names, year_of_birth == "2013")
+baby_12 = filter(baby_names, year_of_birth == "2012")
+baby_11 = filter(baby_names, year_of_birth == "2011")
+
+#find row #'s for each Olivia in each year (should be 4)
+rows16 = which(pull(baby_16,name) == "OLIVIA")
+rows15 = which(pull(baby_15,name) == "OLIVIA")
+rows14 = which(pull(baby_14,name) == "OLIVIA")
+rows13 = which(pull(baby_13,name) == "OLIVIA")
+rows12 = which(pull(baby_12,name) == "OLIVIA")
+rows11 = which(pull(baby_11,name) == "OLIVIA")
+
+#create mini tibble with row #, ethnicity, rank
+tbl_16 = tibble("row" = rows16, 
+         "ethnicity" = pull(baby_16,ethnicity)[rows16],
+         "rank" = pull(baby_16,rank)[rows16]) 
+tbl_15 = tibble("row" = rows15, 
+         "ethnicity" = pull(baby_15,ethnicity)[rows15],
+         "rank" = pull(baby_15,rank)[rows15]) 
+tbl_14 = tibble("row" = rows14, 
+         "ethnicity" = pull(baby_14,ethnicity)[rows14],
+         "rank" = pull(baby_14,rank)[rows14])
+tbl_13 = tibble("row" = rows13, 
+         "ethnicity" = pull(baby_13,ethnicity)[rows13],
+         "rank" = pull(baby_13,rank)[rows13]) 
+tbl_12 = tibble("row" = rows12, 
+         "ethnicity" = pull(baby_12,ethnicity)[rows12],
+         "rank" = pull(baby_12,rank)[rows12])
+tbl_11 = tibble("row" = rows11, 
+         "ethnicity" = pull(baby_11,ethnicity)[rows11],
+         "rank" = pull(baby_11,rank)[rows11]) 
+
+#combine ranks into one pretty table
+olivia_df = tibble("ethnicity" = pull(tbl_16, ethnicity),
+                   "2011" = pull(tbl_11, rank),
+                   "2012" = pull(tbl_12, rank),
+                   "2013" = pull(tbl_13, rank),
+                   "2014" = pull(tbl_14, rank),
+                   "2015" = pull(tbl_15, rank),
+                   "2016" = pull(tbl_16, rank))
+
+olivia_df
+```
+
+## Boys' names popularity
+```{r}
+#isolate boys names from baby names
+boys_names = filter(baby_names, gender == "MALE")
+
+#separate boys_names data by year
+boys_16 = filter(boys_names, year_of_birth == "2016")
+boys_15 = filter(boys_names, year_of_birth == "2015")
+boys_14 = filter(boys_names, year_of_birth == "2014")
+boys_13 = filter(boys_names, year_of_birth == "2013")
+boys_12 = filter(boys_names, year_of_birth == "2012")
+boys_11 = filter(boys_names, year_of_birth == "2011")
+
+#find row #'s for most popular name in each ethnicity
+b_rows16 = which(pull(boys_16, rank) == 1)
+b_rows15 = which(pull(boys_15, rank) == 1)
+b_rows14 = which(pull(boys_14, rank) == 1)
+b_rows13 = which(pull(boys_13, rank) == 1)
+b_rows12 = which(pull(boys_12, rank) == 1)
+b_rows11 = which(pull(boys_11, rank) == 1)
+
+#create mini tibble with row #, ethnicity, #1 name
+b_tbl_16 = tibble("row" = b_rows16, 
+         "ethnicity" = pull(boys_16, ethnicity)[b_rows16],
+         "name" = pull(boys_16, name)[b_rows16]) 
+b_tbl_15 = tibble("row" = b_rows15, 
+         "ethnicity" = pull(boys_15, ethnicity)[b_rows15],
+         "name" = pull(boys_15, name)[b_rows15]) 
+b_tbl_14 = tibble("row" = b_rows14, 
+         "ethnicity" = pull(boys_14, ethnicity)[b_rows14],
+         "name" = pull(boys_14, name)[b_rows14]) 
+b_tbl_13 = tibble("row" = b_rows13, 
+         "ethnicity" = pull(boys_13, ethnicity)[b_rows13],
+         "name" = pull(boys_13, name)[b_rows13]) 
+b_tbl_12 = tibble("row" = b_rows12, 
+         "ethnicity" = pull(boys_12, ethnicity)[b_rows12],
+         "name" = pull(boys_12, name)[b_rows12]) 
+b_tbl_11 = tibble("row" = b_rows11, 
+         "ethnicity" = pull(boys_11, ethnicity)[b_rows11],
+         "name" = pull(boys_11, name)[b_rows11]) 
+
+#combines names into one pretty tibble
+#combine ranks into one pretty table
+num1_boys = tibble("ethnicity" = pull(b_tbl_16, ethnicity),
+                   "2011" = pull(b_tbl_11, name),
+                   "2012" = pull(b_tbl_12, name),
+                   "2013" = pull(b_tbl_13, name),
+                   "2014" = pull(b_tbl_14, name),
+                   "2015" = pull(b_tbl_15, name),
+                   "2016" = pull(b_tbl_16, name))
+
+num1_boys
+```
 
