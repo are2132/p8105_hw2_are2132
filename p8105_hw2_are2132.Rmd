@@ -96,8 +96,8 @@ pols_month =
   mutate(president = 
            replace(president, president!="dem", "gop")) %>%
  
-  #delete 3 columns
-  select(-c(prez_dem,prez_gop,day))
+  #delete 3 columns, including day
+  select(-c(prez_dem, prez_gop, day))
   
 ```
 
@@ -111,7 +111,7 @@ snp_data =
   separate(col = date, into = c("month","day","year"), 
            sep = "/", convert = TRUE) %>% 
   
-  #arrange by date
+  #arrange rows by date
   arrange(year, month) %>% 
   
   #spell out months
@@ -130,19 +130,30 @@ Finally we read in and tidy the unemployment data
 ```{r}
 unemploy_data = 
   read_csv(file = "./hw2 data/538_data/unemployment.csv") %>% 
-  janitor::clean_names() %>% 
+  #note we don't want to clean names yet
+  #since months must be capitalized
+  
+  #pivot wide to long
   pivot_longer(
-    jan:dec,
+    Jan:Dec,
     names_to = "month",
     values_to = "unemploy_rate"
-  )
+  ) %>% 
+
+  #spell out months: Jan > 1 > January
+  mutate(month = month.name[match(month, month.abb)]) %>% 
+    
+  #now clean up names so Year > year
+  janitor::clean_names() 
+  #mutate(year = as.integer(year))
+
 
 ```
 
 Now let's combine the datasets into one
 ```{r}
-stepping_stone = left_join(pols_month, snp_data)
-final_data538 = left_join(stepping_stone, unemploy_data)
+final_data538 = left_join(pols_month, snp_data) %>%
+  left_join(unemploy_data)
 ```
 
 ## Discussion
