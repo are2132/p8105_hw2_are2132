@@ -71,7 +71,7 @@ Next we read in the precipitation data from 2017 and 2018 (note that we only hav
   
 The total precipitation in 2018 through July was `r sum(pull(precip_18, total))` inches of rain.  
   
-The median number of sports ball in a dumpster in 2017 was `r median(pull(filter(wheel_data, year == "2017"), sports_balls))` balls.
+The median number of sports balls in a dumpster in 2017 was `r median(pull(filter(wheel_data, year == "2017"), sports_balls))` balls.
 
 
 # Problem 2
@@ -128,8 +128,6 @@ snp_data =
   #order so cols = year then month
   select(year, everything())
 
-#head() NOT WORKING ON KNIT
-
 ```
 
 
@@ -154,16 +152,12 @@ unemploy_data =
   janitor::clean_names() 
   #mutate(year = as.integer(year))
 
-#head() NOT WORKING ON KNIT
-
 ```
 
 Now let's combine the datasets into one
 ```{r}
 final_data538 = left_join(pols_month, snp_data) %>%
   left_join(unemploy_data)
-
-#head() NOT WORKING ON KNIT
 
 ```
 
@@ -231,7 +225,7 @@ rows13 = which(pull(baby_13,name) == "OLIVIA")
 rows12 = which(pull(baby_12,name) == "OLIVIA")
 rows11 = which(pull(baby_11,name) == "OLIVIA")
 
-#create 1 column tibble with row #, ethnicity, rank
+#create 1 column tibbles with row #, ethnicity, rank
 tbl_16 = tibble("row" = rows16, 
          "ethnicity" = pull(baby_16,ethnicity)[rows16],
          "rank" = pull(baby_16,rank)[rows16]) 
@@ -251,7 +245,7 @@ tbl_11 = tibble("row" = rows11,
          "ethnicity" = pull(baby_11,ethnicity)[rows11],
          "rank" = pull(baby_11,rank)[rows11]) 
 
-#combine ranks into one pretty table
+#combine ranks into one pretty tibble
 olivia_df = tibble("ethnicity" = pull(tbl_16, ethnicity),
                    "2011" = pull(tbl_11, rank),
                    "2012" = pull(tbl_12, rank),
@@ -259,7 +253,10 @@ olivia_df = tibble("ethnicity" = pull(tbl_16, ethnicity),
                    "2014" = pull(tbl_14, rank),
                    "2015" = pull(tbl_15, rank),
                    "2016" = pull(tbl_16, rank))
+```
 
+The following dataframe shows the ranking in popularity of the name "Olivia", by year & ethnicity
+```{r}
 olivia_df
 ```
 
@@ -312,9 +309,13 @@ num1_boys = tibble("ethnicity" = pull(b_tbl_16, ethnicity),
                    "2014" = pull(b_tbl_14, name),
                    "2015" = pull(b_tbl_15, name),
                    "2016" = pull(b_tbl_16, name))
+```
 
+The following dataframe shows the #1 boys' name, by year & ethnicity
+```{r}
 num1_boys
 ```
+
 
 ## Scatterplot
 ```{r}
