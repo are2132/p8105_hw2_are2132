@@ -324,15 +324,11 @@ male_white_boys = filter(baby_names, gender == "MALE",
                          year_of_birth == "2016",
                          ethnicity == "WHITE NON HISPANIC")
 
-#isolate columns for count & rank
-name_count = pull(male_white_boys, count)
-name_rank = pull(male_white_boys, rank)
-
-
-#combine into a new 2 column tibble
-mwb_df = tibble(name_rank, name_count)
 
 #plot it (I have reversed x-axis for intuitive reading)
-ggplot(mwb_df, aes(x = name_rank, y = name_count)) + geom_point() + scale_x_reverse()
+plot1 = ggplot(male_white_boys, aes(x = rank, y = count)) +
+  geom_point() + scale_x_reverse()
+plot1 + ggtitle("Count vs. Rank for Most Popular Names of 
+                Male White Boys")
 ```
 
